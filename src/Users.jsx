@@ -46,13 +46,14 @@ import { BsImage } from 'react-icons/bs';
 // 	);
 // };
 
-const ImageCard = ({ user, ...props }) => {
+const ImageCard = ({ user, handleImageClick, selected, ...props }) => {
 	const { attributes, listeners, setNodeRef, transform, transition } =
 		useSortable({ id: user.id });
 	const style = {
 		transition,
 		transform: CSS.Transform.toString(transform),
 	};
+	const [select, setSelect] = useState(false);
 	return (
 		<GridItem
 			borderRadius='6px'
@@ -64,24 +65,30 @@ const ImageCard = ({ user, ...props }) => {
 			{...listeners}
 			{...props}
 			position='relative'
-			_hover={{
-				'&::after': {
-					content: '""',
-					position: 'absolute',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					background: '#000', // Transparent black overlay
-					opacity: 0.2, // Initially invisible
-					transition: 'opacity 0.3s', // Smooth transition on hover
-					zIndex: '1', // Place overlay above content
-				},
-			}}
-			_hoverAfter={{
-				opacity: 1, // Make the overlay visible on hover
-			}}
+			// _hover={{
+			// 	'&::after': {
+			// 		content: '""',
+			// 		position: 'absolute',
+			// 		top: 0,
+			// 		left: 0,
+			// 		right: 0,
+			// 		bottom: 0,
+			// 		background: '#000', // Transparent black overlay
+			// 		opacity: 0.2, // Initially invisible
+			// 		transition: 'opacity 0.3s', // Smooth transition on hover
+			// 		zIndex: '1', // Place overlay above content
+			// 	},
+			// }}
+			// _hoverAfter={{
+			// 	opacity: 1, // Make the overlay visible on hover
+			// }}
+			// onClick={() => handleImageClick(user.id)}
 		>
+			<Image
+				src={user.image}
+				objectFit='cover'
+				onClick={() => handleImageClick(user.id)}
+			/>
 			<Checkbox
 				colorScheme='blue'
 				position='absolute'
@@ -89,9 +96,10 @@ const ImageCard = ({ user, ...props }) => {
 				left='10px'
 				size='lg'
 				borderRadius='6px'
-				zIndex='2' // Make sure the checkbox is above the overlay
-			></Checkbox>
-			<Image src={user.image} objectFit='cover' />
+				isChecked={selected.includes(user.id) ? true : false}
+				onChange={() => handleImageClick(user.id)}
+				zIndex='2'
+			/>
 		</GridItem>
 	);
 };
@@ -99,14 +107,14 @@ const ImageCard = ({ user, ...props }) => {
 const Users = () => {
 	const [users, setUsers] = useState(data);
 	const [inputValue, setInputValue] = useState('');
-	const addUser = () => {
-		newUser = {
-			id: Date.now().toString(),
-			name: inputValue,
-		};
-		setInputValue('');
-		setUsers(users => [...users, newUser]);
-	};
+	const [selected, setSelected] = useState([]);
+
+	// const { attributes, listeners, setNodeRef, transform, transition } =
+	// 	useSortable({ id: user.id });
+	// const style = {
+	// 	transition,
+	// 	transform: CSS.Transform.toString(transform),
+	// };
 
 	const onDragEnd = event => {
 		const { active, over } = event;
@@ -120,6 +128,33 @@ const Users = () => {
 		});
 	};
 
+	// const handleImageClick = id => {
+	// 	const selectedIndex = selected.indexOf(id);
+	// 	if (selectedIndex === -1) {
+	// 		setSelected([...selected, id]);
+	// 	} else {
+	// 		const newSelectedImages = [...selected];
+	// 		newSelectedImages.splice(selectedIndex, 1);
+	// 		setSelected(newSelectedImages);
+	// 		console.log(selected);
+	// 	}
+	// };
+
+	const handleImageClick = id => {
+		if (selected.includes(id)) {
+			setSelected(selected.filter(item => item !== id));
+			console.log(selected);
+		} else {
+			setSelected([...selected, id]);
+			console.log(selected);
+		}
+	};
+
+	function handleDeleteSelected() {
+		const remainingImages = users.filter(user => !selected.includes(user.id));
+		setUsers(remainingImages);
+		setSelected([]);
+	}
 	return (
 		<Flex
 			direction='column'
@@ -133,8 +168,15 @@ const Users = () => {
 			gap='15px'
 		>
 			<Flex w='full' justify='space-between' px='20px'>
-				<Heading>All Files</Heading>
-				<Button colorScheme='red'>Delete</Button>
+				<Heading>
+					{selected.length === 0
+						? 'All Files'
+						: `${selected.length} Files Selected`}
+					{/* All Files */}
+				</Heading>
+				<Button colorScheme='red' onClick={() => handleDeleteSelected}>
+					Delete
+				</Button>
 			</Flex>
 			<Grid
 				templateColumns='1fr 1fr 1fr 1fr 1fr'
@@ -148,16 +190,15 @@ const Users = () => {
 						strategy={horizontalListSortingStrategy}
 					>
 						{users.map((user, index) => (
-							<>
-								<ImageCard
-									colSpan={index === 0 ? 2 : 1}
-									rowSpan={index === 0 ? 2 : 1}
-									key={user.id}
-									user={user}
-								/>
-							</>
-
-							// <SortableUser key={user.id} user={user} />
+							<ImageCard
+								colSpan={index === 0 ? 2 : 1}
+								rowSpan={index === 0 ? 2 : 1}
+								key={user.id}
+								user={user}
+								selected={selected}
+								handleImageClick={handleImageClick}
+								// onClick={() => handleImageClick(user.id)}
+							/>
 						))}
 						<GridItem
 							borderRadius='6px'
