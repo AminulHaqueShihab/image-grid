@@ -25,27 +25,6 @@ import {
 } from '@chakra-ui/react';
 import { BsImage } from 'react-icons/bs';
 
-// const SortableUser = ({ user }) => {
-// 	const { attributes, listeners, setNodeRef, transform, transition } =
-// 		useSortable({ id: user.id });
-// 	const style = {
-// 		transition,
-// 		transform: CSS.Transform.toString(transform),
-// 	};
-
-// 	return (
-// 		<div
-// 			ref={setNodeRef}
-// 			style={style}
-// 			{...attributes}
-// 			{...listeners}
-// 			className='user'
-// 		>
-// 			{user.name}
-// 		</div>
-// 	);
-// };
-
 const ImageCard = ({ user, handleImageClick, selected, ...props }) => {
 	const { attributes, listeners, setNodeRef, transform, transition } =
 		useSortable({ id: user.id });
@@ -53,7 +32,8 @@ const ImageCard = ({ user, handleImageClick, selected, ...props }) => {
 		transition,
 		transform: CSS.Transform.toString(transform),
 	};
-	const [select, setSelect] = useState(false);
+	const [checked, setChecked] = useState(false);
+
 	return (
 		<GridItem
 			borderRadius='6px'
@@ -65,29 +45,26 @@ const ImageCard = ({ user, handleImageClick, selected, ...props }) => {
 			{...listeners}
 			{...props}
 			position='relative'
-			// _hover={{
-			// 	'&::after': {
-			// 		content: '""',
-			// 		position: 'absolute',
-			// 		top: 0,
-			// 		left: 0,
-			// 		right: 0,
-			// 		bottom: 0,
-			// 		background: '#000', // Transparent black overlay
-			// 		opacity: 0.2, // Initially invisible
-			// 		transition: 'opacity 0.3s', // Smooth transition on hover
-			// 		zIndex: '1', // Place overlay above content
-			// 	},
-			// }}
-			// _hoverAfter={{
-			// 	opacity: 1, // Make the overlay visible on hover
-			// }}
-			// onClick={() => handleImageClick(user.id)}
+			_hover={{
+				'&::after': {
+					content: '""',
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					background: '#000',
+					opacity: 0.2,
+					transition: 'opacity 0.3s',
+					zIndex: '1',
+				},
+			}}
+			onClick={() => handleImageClick(user.id)}
 		>
 			<Image
 				src={user.image}
 				objectFit='cover'
-				onClick={() => handleImageClick(user.id)}
+				// onClick={() => handleImageClick(user.id)}
 			/>
 			<Checkbox
 				colorScheme='blue'
@@ -97,7 +74,7 @@ const ImageCard = ({ user, handleImageClick, selected, ...props }) => {
 				size='lg'
 				borderRadius='6px'
 				isChecked={selected.includes(user.id) ? true : false}
-				onChange={() => handleImageClick(user.id)}
+				// onChange={() => handleImageClick(user.id)}
 				zIndex='2'
 			/>
 		</GridItem>
@@ -108,13 +85,6 @@ const Users = () => {
 	const [users, setUsers] = useState(data);
 	const [inputValue, setInputValue] = useState('');
 	const [selected, setSelected] = useState([]);
-
-	// const { attributes, listeners, setNodeRef, transform, transition } =
-	// 	useSortable({ id: user.id });
-	// const style = {
-	// 	transition,
-	// 	transform: CSS.Transform.toString(transform),
-	// };
 
 	const onDragEnd = event => {
 		const { active, over } = event;
@@ -128,23 +98,14 @@ const Users = () => {
 		});
 	};
 
-	// const handleImageClick = id => {
-	// 	const selectedIndex = selected.indexOf(id);
-	// 	if (selectedIndex === -1) {
-	// 		setSelected([...selected, id]);
-	// 	} else {
-	// 		const newSelectedImages = [...selected];
-	// 		newSelectedImages.splice(selectedIndex, 1);
-	// 		setSelected(newSelectedImages);
-	// 		console.log(selected);
-	// 	}
-	// };
+	console.log(selected);
 
 	const handleImageClick = id => {
 		if (selected.includes(id)) {
 			setSelected(selected.filter(item => item !== id));
 			console.log(selected);
 		} else {
+			console.log('selected');
 			setSelected([...selected, id]);
 			console.log(selected);
 		}
@@ -172,7 +133,6 @@ const Users = () => {
 					{selected.length === 0
 						? 'All Files'
 						: `${selected.length} Files Selected`}
-					{/* All Files */}
 				</Heading>
 				<Button colorScheme='red' onClick={() => handleDeleteSelected}>
 					Delete
@@ -197,6 +157,7 @@ const Users = () => {
 								user={user}
 								selected={selected}
 								handleImageClick={handleImageClick}
+
 								// onClick={() => handleImageClick(user.id)}
 							/>
 						))}
